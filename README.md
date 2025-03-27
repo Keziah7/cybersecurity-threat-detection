@@ -33,7 +33,7 @@ cd cybersecurity-threat-detection
 Install dependencies:
 pip install pandas numpy matplotlib seaborn scikit-learn
 Run the preprocessing script:
-threat_detection.py
+threat_detectionpy
 📸 Visualizations
 Example graphs are stored in the repo:
 
