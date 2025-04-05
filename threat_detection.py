@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
 
 # Start message
 print("Cybersecurity Threat Detection Project Started!")
@@ -71,6 +74,13 @@ for col in data.columns:
 if attack_col:
     print(f"\nDetected attack label column: {attack_col}")
 
+    # Step 1: Check unique values in the attack column
+    print("\nUnique values in the attack label column:\n", data[attack_col].unique())
+
+    # Convert the attack labels to categorical if needed
+    data[attack_col] = data[attack_col].astype('category')
+    y = data[attack_col].cat.codes  # Encode categorical labels as numeric values
+
     # Plot attack type distribution
     plt.figure(figsize=(10, 5))
     sns.countplot(x=data[attack_col], hue=data[attack_col], palette='coolwarm', legend=False)
@@ -93,3 +103,35 @@ plt.title("Feature Correlation Heatmap")
 plt.savefig("feature_correlation.png")
 plt.show()
 print("Saved feature correlation graph as 'feature_correlation.png'.")
+
+# Step 2: Separate features and target
+if attack_col:
+    X = data.drop(columns=[attack_col])
+else:
+    print("Attack label column not found. Exiting...")
+    exit()
+
+# Step 3: Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 4: Train the Random Forest model
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Step 5: Make predictions
+y_pred = rf_model.predict(X_test)
+
+# Step 6: Evaluate the model
+print("\n🎯 Model Evaluation:")
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# Plot confusion matrix as a heatmap
+plt.figure(figsize=(6, 4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues')
+plt.title("Confusion Matrix Heatmap")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.tight_layout()
+plt.savefig("confusion_matrix.png")
+plt.show()
